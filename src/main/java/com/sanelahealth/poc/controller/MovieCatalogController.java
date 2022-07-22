@@ -26,10 +26,14 @@ public class MovieCatalogController {
 	private MovieCatalogService catalogService;
 
 	private String saveMessage = "Saved Successfully";
+	
+	private String updateMessage = "Updated Successfully";
 
 	private String errorMessage = "No Data Found";
 
 	private String successMessage = "Data Getting Successfully";
+	
+	private String deleteMessage = "Data Deleted Successfully";
 
 	@PostMapping
 	public ResponseEntity<Object> saveMovieCatalog(@RequestBody MovieCatalogBean catalogBean) {
@@ -58,10 +62,10 @@ public class MovieCatalogController {
 		ResponseBean bean = new ResponseBean();
 		bean.setData(catalogBean);
 		bean.setId(catalogBean.getId());
-		bean.setMessage(saveMessage);
-		bean.setStatus(HttpStatus.CREATED.value());
+		bean.setMessage(updateMessage);
+		bean.setStatus(HttpStatus.OK.value());
 
-		return new ResponseEntity<>(bean, HttpStatus.CREATED);
+		return new ResponseEntity<>(bean, HttpStatus.OK);
 	}
 
 	@GetMapping("/all")
@@ -75,11 +79,19 @@ public class MovieCatalogController {
 
 	@GetMapping("/byId/{id}")
 	public ResponseEntity<Object> saveMovieCatalog(@PathVariable String id) {
+		MovieCatalogBean catalogBean = catalogService.getMovieCatalogById(id);
 		ResponseBean bean = new ResponseBean();
-		bean.setData(catalogService.getMovieCatalogById(id));
+		if(catalogBean != null) {
+		bean.setData(catalogBean);
+		bean.setId(catalogBean.getId());
 		bean.setMessage(successMessage);
 		bean.setStatus(HttpStatus.OK.value());
 		return new ResponseEntity<>(bean, HttpStatus.OK);
+		}else {
+			bean.setMessage(errorMessage);
+			bean.setStatus(HttpStatus.BAD_REQUEST.value());
+			return new ResponseEntity<>(bean, HttpStatus.BAD_REQUEST);
+		}
 	}
 
 	@DeleteMapping("/delete/{id}")
@@ -94,7 +106,7 @@ public class MovieCatalogController {
 		catalogService.removeCatalog(id);
 		ResponseBean bean = new ResponseBean();
 		bean.setData(catalogService.getMovieCatalogById(id));
-		bean.setMessage(successMessage);
+		bean.setMessage(deleteMessage);
 		bean.setStatus(HttpStatus.OK.value());
 		return new ResponseEntity<>(bean, HttpStatus.OK);
 	}
